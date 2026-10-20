@@ -8,7 +8,7 @@ App para profissionais do mundo pet canino: donos de hotel, passeadores, cuidado
 |---|---|
 | Plataforma | Mobile com Expo (SDK 57, Expo Router), Android e iOS |
 | Backend | Supabase (Postgres, Auth, Storage) |
-| Usuários | Somente o profissional, uma conta por usuário. Sem equipe e sem acesso do tutor no MVP |
+| Usuários | Uma conta (o dono) no MVP, com os dados por negócio para os ajudantes entrarem na Fase 2. Sem acesso do tutor no MVP |
 | Idioma | pt-BR |
 
 ## Escopo do MVP
@@ -18,19 +18,21 @@ App para profissionais do mundo pet canino: donos de hotel, passeadores, cuidado
 3. **Lembretes e notificações**: aviso antes de um atendimento, vacina vencendo e horário de remédio durante a hospedagem. Notificações locais via `expo-notifications`.
 4. **Financeiro**: preço por tipo de serviço, pacotes (ex.: 10 passeios), pagamentos recebidos e pendentes e resumo do mês.
 
-## Modelo de dados inicial (Supabase)
+## Modelo de dados (Supabase)
 
-Todas as tabelas têm `profissional_id` e RLS que restringe o acesso a `auth.uid()`.
+Aplicado no projeto em 2026-10-20 pelas migrations de `supabase/migrations`. Os dados pertencem a um **negócio**, e não a uma pessoa: toda tabela tem `negocio_id`, e a RLS libera o acesso a quem está em `membros`. No MVP o único membro é o dono; os ajudantes entram na Fase 2 sem migrar dados. O app cria o negócio pela função `criar_negocio`, que também registra o dono.
 
-- `profissionais`: perfil, tipo(s) de serviço que oferece
-- `tutores`
-- `caes`: `tutor_id`
-- `vacinas`: `cao_id`, nome, data de aplicação, data de validade
-- `servicos`: tipo, nome, preço padrão, duração
-- `atendimentos`: `cao_id`, `servico_id`, início, fim, status, valor, observações, `recorrencia`
-- `pacotes`: `tutor_id`, `servico_id`, quantidade, usados, valor
-- `pagamentos`: `tutor_id`, `atendimento_id` ou `pacote_id`, valor, data, forma, status
-- `lembretes`: tipo, referência, data e hora, enviado
+| Área | Tabelas |
+|---|---|
+| Acesso | `negocios` (capacidade, horário da diária, modalidades), `membros` |
+| Clientes e cães | `tutores`, `caes`, `cao_tutores` (vários tutores por cão, um principal), `vacinas`, `anexos`, `medicacoes` |
+| Serviços e preços | `servicos` (modalidade: estadia, diária, sessão ou adicional), `temporadas`, `precos` (faixa por número de cães, cão extra e especial, normal ou alta temporada) |
+| Reservas e rotina | `reservas` (substituem atendimentos), `reserva_caes`, `adicionais_reserva`, `lista_espera`, `pertences`, `tarefas`, `ocorrencias` |
+| Financeiro | `cobrancas` (integral, sinal, restante), `pagamentos`, `pacotes` e a view `cobrancas_situacao` |
+
+Fotos e anexos ficam no bucket privado `arquivos`, numa pasta por negócio. Não há tabela de lembretes: as notificações são agendadas no aparelho a partir das tarefas, reservas e cobranças.
+
+Para mudar o banco, crie uma nova migration e aplique com `npx supabase db push --db-url "$SUPABASE_DB_URL"`.
 
 ## Ordem de implementação
 
@@ -45,4 +47,4 @@ Todas as tabelas têm `profissional_id` e RLS que restringe o acesso a `auth.uid
 ## Pendências
 
 - Definir o nome do app (a pasta atual se chama `novo-projeto`).
-- Criar o projeto no Supabase e colocar `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` no `.env`.
+- O projeto do Supabase ficou na região us-east-2 (Ohio). Decidir se recria em São Paulo antes de ter dados reais.
