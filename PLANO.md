@@ -37,7 +37,7 @@ Para mudar o banco, crie uma nova migration e aplique com `npx supabase db push 
 ## Ordem de implementação
 
 1. Limpar o template (`npm run reset-project`), definir tema, navegação em abas (Agenda, Clientes, Financeiro, Ajustes) e a pasta `src/lib`.
-2. Configurar o Supabase: projeto, migrations em `supabase/migrations`, cliente com `@supabase/supabase-js` e login por e-mail.
+2. Configurar o Supabase: projeto, migrations em `supabase/migrations`, cliente com `@supabase/supabase-js` (`src/lib/supabase.ts`) e login por código enviado ao e-mail (`src/app/entrar.tsx`). Depois do primeiro login, o app pede o nome do negócio (`src/app/novo-negocio.tsx`).
 3. CRUD de tutores e cães.
 4. Agenda e atendimentos.
 5. Lembretes (notificações locais).
@@ -48,3 +48,4 @@ Para mudar o banco, crie uma nova migration e aplique com `npx supabase db push 
 
 - Definir o nome do app (a pasta atual se chama `novo-projeto`).
 - O projeto do Supabase ficou na região us-east-2 (Ohio). Decidir se recria em São Paulo antes de ter dados reais.
+- O código de login só chega se o modelo de e-mail "Magic link" tiver `{{ .Token }}`. Projetos gratuitos criados depois de 3 de junho de 2026 não podem editar os modelos usando o envio padrão do Supabase, que também só entrega para e-mails da equipe do projeto e tem limite baixo por hora. É preciso configurar um SMTP próprio (Resend, Postmark, SES etc.) e então trocar o modelo.

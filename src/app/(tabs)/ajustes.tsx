@@ -7,6 +7,7 @@ import {
   DeviceMobileIcon,
   HouseLineIcon,
   MoonIcon,
+  SignOutIcon,
   StarIcon,
   SunIcon,
   TennisBallIcon,
@@ -26,6 +27,7 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { CAPACIDADE } from '@/data/mock';
+import { useSession } from '@/hooks/use-session';
 import { useTheme } from '@/hooks/use-theme';
 
 const aparencias: { value: ThemePreference; label: string; icon: Icon }[] = [
@@ -44,9 +46,10 @@ const servicos: { nome: string; modalidade: string; icon: Icon; tone: Tone }[] =
 
 export default function AjustesScreen() {
   const { colors, preference, setPreference, scheme } = useTheme();
+  const { session, negocio, sair } = useSession();
 
   return (
-    <Screen title="Ajustes" subtitle="Seu negócio e o app">
+    <Screen title="Ajustes" subtitle={negocio?.nome ?? 'Seu negócio e o app'}>
       <Card className="gap-4 rounded-3xl">
         <View className="flex-row items-center justify-between">
           <View className="gap-0.5">
@@ -110,6 +113,17 @@ export default function AjustesScreen() {
             <CaretRightIcon size={16} color={colors.textSecondary} />
           </Pressable>
         ))}
+      </Card>
+
+      <Card className="gap-1 rounded-3xl">
+        <Heading size="md" className="mb-2 font-nunito-bold font-normal">
+          Conta
+        </Heading>
+        <Text className="text-muted-foreground">{session?.user.email}</Text>
+        <Pressable onPress={sair} accessibilityRole="button" className="mt-2 flex-row items-center gap-3 py-2">
+          <IconBubble icon={SignOutIcon} tone="danger" size={36} />
+          <Text className="flex-1 font-nunito-bold text-destructive">Sair</Text>
+        </Pressable>
       </Card>
 
       <Text size="xs" className="text-center text-muted-foreground">
